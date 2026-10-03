@@ -31,8 +31,13 @@ It changes **nothing** in the FLAIL system — it only passes Item Piles a confi
 Once active, use Item Piles exactly as documented:
 - **Drop an item** onto the canvas to create a loot pile.
 - Turn a token/actor into a **merchant** or **vault** via its Item Piles configuration.
-- Players loot by opening the pile; looted items land on their character (unequipped — they appear in the sheet's loose tray, ready to slot).
+- Players loot by opening the pile; looted items land on their character.
 - Coins move through the **Coins** currency, backed by `system.coins`.
+
+### Auto-stow (v1.1.0+)
+By default, items looted from a pile are **auto-placed into a free inventory slot** — stashed (satchel) first, then worn (body), then carried (hands) — rather than dropped into the sheet's loose/unequipped tray. Two-slot items, STR/level-locked slots and zone rules are all respected; if there's no room the item simply stays in the loose tray (loot is never discarded). This needs FLAIL system **v0.4.124+** (which exposes `game.flail.stowItems`).
+
+Turn it off with **Configure Settings → "Auto-stow looted items into slots"** if you'd rather place loot by hand.
 
 ## Turning it off
 A world setting — **Configure Settings → FLAIL! Item Piles Integration → "Enable Item Piles integration"** — lets a GM disable the bridge without uninstalling. Reload after changing.

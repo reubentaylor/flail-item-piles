@@ -2,7 +2,7 @@
   "id": "flail-item-piles",
   "title": "FLAIL! — Item Piles Integration",
   "description": "Optional bridge that registers the FLAIL! game system with Item Piles, enabling loot piles, merchants and vaults. Install and enable it only if your table wants to use Item Piles with FLAIL.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compatibility": {
     "minimum": "13",
     "verified": "14",

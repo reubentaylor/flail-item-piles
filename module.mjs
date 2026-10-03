@@ -83,6 +83,45 @@ Hooks.once("init", () => {
     default: true,
     requiresReload: true
   });
+  game.settings.register(MODULE_ID, "autoStow", {
+    name: "Auto-stow looted items into slots",
+    hint: "When a character loots an item from an Item Piles pile, automatically place it into a free inventory slot (stashed first, then worn, then carried) instead of the loose tray. Two-slot items, locked slots and zone rules are respected; if there's no room the item stays in the loose tray.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+    requiresReload: false
+  });
+});
+
+/**
+ * Auto-stow looted items. Item Piles fires `item-piles-addItems` on every
+ * client with (targetUuid, itemDeltas, userId, interactionId) once items have
+ * been added to the recipient. We let only the initiating client act, resolve
+ * the newly added items on the target character, and hand them to the system's
+ * slot-placement helper. Needs no slot logic of its own.
+ */
+Hooks.on("item-piles-addItems", async (targetUuid, itemDeltas, userId) => {
+  try {
+    if (game.system?.id !== SYSTEM_ID) return;
+    if (!game.settings.get(MODULE_ID, "enabled")) return;
+    if (!game.settings.get(MODULE_ID, "autoStow")) return;
+    if (game.user?.id !== userId) return;                       // one client only
+    if (typeof game.flail?.stowItems !== "function") return;    // system too old
+
+    const doc = await fromUuid(targetUuid);
+    const actor = doc?.actor ?? doc;                            // Actor or TokenDocument
+    if (!actor || actor.type !== "character") return;           // only characters have slots
+
+    const items = (itemDeltas ?? [])
+      .map(d => actor.items.get(d?.item?._id ?? d?.item?.id ?? d?._id ?? d?.id))
+      .filter(Boolean);
+    if (!items.length) return;
+
+    await game.flail.stowItems(actor, items, { order: ["satchel", "body", "hands"] });
+  } catch (err) {
+    console.error(`${MODULE_ID} | auto-stow of looted items failed`, err);
+  }
 });
 
 Hooks.once("item-piles-ready", async () => {
